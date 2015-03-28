@@ -46,7 +46,7 @@ module.exports = React.createClass({
       </head>
       <body>
         <RouteHandler></RouteHandler>
-        {__DEV__ ? <script src='/main-bundle.js'></script> : null}
+        {__DEV__ ? <script src='/main-bundle.js'></script> : <script src='/bundle.js'></script>}
       </body>
     </html>;
   }

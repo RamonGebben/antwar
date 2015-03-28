@@ -3,10 +3,10 @@ var React = require('react');
 var Router = require('react-router');
 var Routes = require('../elements/Routes.jsx');
 
-module.exports = function(req) {
+module.exports = function(url) {
   var html;
 
-  Router.run(Routes, req.url, function(Handler) {
+  Router.run(Routes, url, function(Handler) {
     html = React.renderToString(React.createElement(Handler, null));
   });
 

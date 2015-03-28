@@ -5,5 +5,5 @@ var Routes = require('../elements/BodyRoutes');
 
 
 Router.run(Routes, Router.HistoryLocation, function(Handler) {
-  React.render(React.createElement(Handler, {}), document.body);
+  React.render(React.createElement(Handler, null), document.body);
 });
