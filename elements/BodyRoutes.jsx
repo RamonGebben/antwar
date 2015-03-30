@@ -3,6 +3,7 @@ var _ = require('lodash');
 var React = require('react');
 var Router = require('react-router');
 var Route = Router.Route;
+var RouteHandler = Router.RouteHandler;
 
 var Body = require('theme/Body');
 var Post = require('theme/Post');
@@ -16,11 +17,54 @@ var paths = require('../paths');
 
 var blogRoot = config.blogRoot || 'blog';
 
-var pageRoutes = _.map(paths.allPages(), function(page, key) {
-  var handler = require('pages/' + page.fileName);
 
-  if(isMarkdownFile(page)) {
+var AsyncElement = {
+  loadedComponent: null,
+
+  load: function () {
+    if (this.constructor.loadedComponent)
+      return;
+
+    this.bundle(function (component) {
+      this.constructor.loadedComponent = component;
+      this.forceUpdate();
+    }.bind(this));
+  },
+
+  componentDidMount: function () {
+    setTimeout(this.load, 1000); // feel it good
+  },
+
+  render: function () {
+    var Component = this.constructor.loadedComponent;
+    if (Component) {
+      // can't find RouteHandler in the loaded component, so we just grab
+      // it here first.
+      this.props.activeRoute = <RouteHandler/>;
+      return <Component {...this.props}/>;
+    }
+    return this.preRender();
+  }
+};
+
+var pageRoutes = _.map(paths.allPages(), function(page, key) {
+  var handler;
+
+  // XXXXX: why / yields just Loading... ? why not others?
+  if(page.fileName) {
+    handler = React.createClass({
+      mixins: [AsyncElement],
+      bundle: require('bundle?lazy!pages/' + page.fileName),
+      preRender: function () {
+        return <div>Loading...</div>;
+      }
+    });
+  }
+  else if(isMarkdownFile(page)) {
     handler = MarkdownPage;
+  }
+  else {
+    handler = require('pages/' + page.fileName);
   }
 
   var path = '/';
